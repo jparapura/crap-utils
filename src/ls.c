@@ -6,25 +6,25 @@ void print_entry(const char *type, const char *text) {
   printf("%s\t%s\n", type, text);
 }
 
-int main() {
-  char *target_dir = ".";
-
+void ls(const char *target_dir) {
   DIR *dir = opendir(target_dir);
   if (dir == NULL) {
-    perror("ls");
-    return 1;
+    perror("opendir");
+    return;
   }
 
   struct dirent *entry;
+  struct stat buffer;
+  char path[1024];
 
   while ((entry = readdir(dir))) {
-    struct stat buffer;
+    snprintf(path, sizeof(path), "%s/%s", target_dir, entry->d_name);
 
-    int status = stat(entry->d_name, &buffer);
+    int status = stat(path, &buffer);
 
     if (status == -1) {
       perror("stat");
-      return 1;
+      return;
     }
 
     switch (buffer.st_mode & S_IFMT) {
@@ -41,6 +41,13 @@ int main() {
   }
 
   closedir(dir);
+}
 
+int main(int argc, char *argv[]) {
+  if (argc == 1) {
+    ls(".");
+  } else {
+    ls(argv[1]);
+  }
   return 0;
 }
