@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
+void print_entry(const char *type, const char *text) {
+  printf("%s\t%s\n", type, text);
+}
+
 int main() {
   char *target_dir = ".";
 
@@ -15,17 +19,23 @@ int main() {
 
   while ((entry = readdir(dir))) {
     struct stat buffer;
+
     int status = stat(entry->d_name, &buffer);
+
     if (status == -1) {
       perror("stat");
       return 1;
     }
+
     switch (buffer.st_mode & S_IFMT) {
     case S_IFREG:
-      printf("%s\n", entry->d_name);
+      print_entry("-", entry->d_name);
+      break;
+    case S_IFDIR:
+      print_entry("d", entry->d_name);
       break;
     default:
-      printf("unknown\n");
+      print_entry("unknown type", "unknown name");
       break;
     }
   }
