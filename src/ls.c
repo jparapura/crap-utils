@@ -2,8 +2,14 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
-void print_entry(const char *type, const char *text) {
+void color_red() { printf("\033[1;31m"); }
+void color_blue() { printf("\033[1;34m"); }
+void color_reset() { printf("\033[0m"); }
+
+void print_entry(void (*color)(), const char *type, const char *text) {
+  color();
   printf("%s\t%s\n", type, text);
+  color_reset();
 }
 
 void ls(const char *target_dir) {
@@ -29,13 +35,13 @@ void ls(const char *target_dir) {
 
     switch (buffer.st_mode & S_IFMT) {
     case S_IFREG:
-      print_entry("-", entry->d_name);
+      print_entry(color_reset, "-", entry->d_name);
       break;
     case S_IFDIR:
-      print_entry("d", entry->d_name);
+      print_entry(color_blue, "d", entry->d_name);
       break;
     default:
-      print_entry("unknown type", "unknown name");
+      print_entry(color_red, "unknown type", "unknown name");
       break;
     }
   }
